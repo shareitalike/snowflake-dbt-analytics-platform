@@ -1,0 +1,31 @@
+version: 2
+
+exposures:
+  - name: exec_kpi_dashboard
+    label: Executive KPI Dashboard (Power BI)
+    type: dashboard
+    maturity: high
+    url: https://app.powerbi.com/groups/me/dashboards/exec-kpi
+    description: "Daily reporting on GMV, Net Revenue, and active customers for the C-Suite."
+    depends_on:
+      - ref('fct_sales')
+      - ref('dim_customer')
+      - metric('net_revenue_metric')
+    owner:
+      name: Executive Finance Team
+      email: finance_execs@omniretail.com
+    tags: ['domain:finance', 'critical']
+
+  - name: sc_inventory_optimization
+    label: Inventory Optimization Engine (ML)
+    type: ml
+    maturity: high
+    url: https://sagemaker.aws.amazon.com/inventory-model
+    description: "Machine Learning model predicting stockouts."
+    depends_on:
+      - ref('fct_inventory_incremental')
+      - ref('dim_product')
+    owner:
+      name: Supply Chain Data Science
+      email: sc_ds@omniretail.com
+    tags: ['domain:supply_chain', 'critical']

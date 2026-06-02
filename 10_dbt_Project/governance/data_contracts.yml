@@ -1,0 +1,34 @@
+version: 2
+
+# Enterprise Data Contracts
+# Enforcing strict schema and data type guarantees on Gold-layer models.
+# If a column name or type changes, dbt will halt compilation before altering the database,
+# protecting downstream exposures (Power BI).
+
+models:
+  - name: fct_sales
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: sales_sk
+        data_type: varchar
+      - name: date_sk
+        data_type: number
+      - name: customer_sk
+        data_type: varchar
+      - name: net_revenue
+        data_type: number
+        
+  - name: dim_customer
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: customer_sk
+        data_type: varchar
+      - name: email_address
+        data_type: varchar
+        meta:
+          contains_pii: true
+          sensitivity: high

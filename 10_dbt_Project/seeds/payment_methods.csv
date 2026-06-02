@@ -1,0 +1,8 @@
+payment_method_code,payment_method_name,fee_percentage
+CC_VISA,Visa Credit Card,0.015
+CC_MC,Mastercard,0.015
+CC_AMEX,American Express,0.029
+PAYPAL,PayPal Wallet,0.025
+APPLE_PAY,Apple Pay,0.015
+STORE_CREDIT,Store Credit,0.000
+GIFT_CARD,Gift Card,0.000

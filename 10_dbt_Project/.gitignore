@@ -1,0 +1,16 @@
+# dbt artifacts
+target/
+dbt_packages/
+logs/
+dbt_modules/
+
+# Python
+*.pyc
+__pycache__/
+.env
+venv/
+.venv/
+
+# OS generated files
+.DS_Store
+Thumbs.db

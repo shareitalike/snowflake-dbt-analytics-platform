@@ -1,0 +1,28 @@
+selectors:
+  - name: nightly_batch
+    description: "Runs all fact and dimension models, excluding experimental models."
+    definition:
+      union:
+        - method: tag
+          value: layer:marts
+      exclude:
+        - method: tag
+          value: experimental
+
+  - name: hourly_incremental
+    description: "Runs only the incremental fact tables requiring high freshness."
+    definition:
+      intersection:
+        - method: tag
+          value: type:fact
+        - method: config.materialized
+          value: incremental
+
+  - name: slim_ci_pr_build
+    description: "Selects only models modified in the current PR and their 1st degree downstream dependents."
+    definition:
+      union:
+        - method: state
+          value: modified
+        - method: state
+          value: modified+1

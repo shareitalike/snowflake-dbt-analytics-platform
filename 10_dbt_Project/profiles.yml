@@ -1,0 +1,29 @@
+retail_snowflake_profile:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('DBT_SNOWFLAKE_USER') }}"
+      # In an enterprise environment, dbt Cloud uses Key-Pair Authentication, not passwords.
+      private_key_path: "{{ env_var('DBT_SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      private_key_passphrase: "{{ env_var('DBT_SNOWFLAKE_PRIVATE_KEY_PASSPHRASE') }}"
+      role: RL_DATA_ENGINEER
+      database: DB_DEV_GOLD
+      warehouse: WH_DEV_TRANSFORM
+      schema: ANALYTICS_DEV
+      threads: 8
+      client_session_keep_alive: False
+      
+    prod:
+      type: snowflake
+      account: "{{ env_var('DBT_SNOWFLAKE_ACCOUNT') }}"
+      user: SVC_DBT_PROD
+      private_key_path: "{{ env_var('DBT_SNOWFLAKE_PROD_KEY_PATH') }}"
+      private_key_passphrase: "{{ env_var('DBT_SNOWFLAKE_PROD_KEY_PASSPHRASE') }}"
+      role: RL_DBT_PROD_EXEC
+      database: DB_PROD_GOLD
+      warehouse: WH_PROD_TRANSFORM_L
+      schema: ANALYTICS
+      threads: 16
+      client_session_keep_alive: False
