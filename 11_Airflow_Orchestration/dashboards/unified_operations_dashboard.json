@@ -1,0 +1,67 @@
+{
+  "title": "Enterprise Unified Data Operations Dashboard",
+  "description": "Consolidated view of Airflow Orchestration, Snowflake Compute, and dbt Cloud run status.",
+  "panels": [
+    {
+      "title": "Airflow: Active Task Failures (24h)",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(airflow_task_failures_total[1h])) by (dag_id)"
+        }
+      ]
+    },
+    {
+      "title": "Airflow: Worker Pool Open Slots",
+      "type": "gauge",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "airflow_pool_open_slots{pool_name='default_pool'}"
+        }
+      ]
+    },
+    {
+      "title": "Snowflake: Warehouse Credit Burn (Today)",
+      "type": "stat",
+      "datasource": "Snowflake_JDBC",
+      "targets": [
+        {
+          "rawSql": "SELECT SUM(CREDITS_USED) FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY WHERE START_TIME >= CURRENT_DATE()"
+        }
+      ]
+    },
+    {
+      "title": "Snowpark: Long-Running Jobs",
+      "type": "table",
+      "datasource": "Snowflake_JDBC",
+      "targets": [
+        {
+          "rawSql": "SELECT QUERY_ID, TOTAL_ELAPSED_TIME/1000 AS SECONDS FROM TABLE(INFORMATION_SCHEMA.QUERY_HISTORY()) WHERE QUERY_TYPE = 'CALL' AND EXECUTION_STATUS = 'RUNNING' ORDER BY SECONDS DESC"
+        }
+      ]
+    },
+    {
+      "title": "dbt Cloud: Model Failure Rate",
+      "type": "timeseries",
+      "datasource": "Snowflake_JDBC",
+      "description": "Parsed from run_results.json loaded by the EnterpriseDbtCloudClient",
+      "targets": [
+        {
+          "rawSql": "SELECT TIME_SLICE, FAILED_MODELS FROM METADATA.DBT_OBSERVABILITY_LOGS"
+        }
+      ]
+    },
+    {
+      "title": "Platform SLA Compliance",
+      "type": "gauge",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "100 - (sum(airflow_sla_misses_total) / sum(airflow_dagrun_duration_seconds) * 100)"
+        }
+      ]
+    }
+  ]
+}

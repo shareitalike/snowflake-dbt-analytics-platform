@@ -1,0 +1,64 @@
+# OmniRetail Enterprise DAG Metadata Configuration
+# The DAG Factory parses this YAML and dynamically generates 1 Airflow DAG per domain block.
+
+domains:
+  - pipeline_name: "customer_ingestion"
+    source_system: "Salesforce"
+    target_schema: "omniretail.raw"
+    owner: "data_eng_cx"
+    schedule_interval: "@hourly"
+    sla_hours: 2
+    warehouse: "SMALL_ETL_WH"
+    dbt_job_id: 10001
+    notification_channel: "#alerts-cx-data"
+    retries: 3
+    tags: ["domain:customer", "tier:1", "auto-generated"]
+    streams_to_process:
+      - stream_name: "customer_profile_stream"
+        task_name: "task_process_customer_profile"
+      - stream_name: "customer_address_stream"
+        task_name: "task_process_customer_address"
+
+  - pipeline_name: "sales_pipeline"
+    source_system: "Oracle_ERP"
+    target_schema: "omniretail.raw"
+    owner: "data_eng_sales"
+    schedule_interval: "*/15 * * * *"
+    sla_hours: 1
+    warehouse: "XLARGE_ETL_WH"
+    dbt_job_id: 10002
+    notification_channel: "#alerts-sales-data"
+    retries: 1
+    tags: ["domain:sales", "tier:1", "auto-generated"]
+    streams_to_process:
+      - stream_name: "sales_order_stream"
+        task_name: "task_process_sales_order"
+      - stream_name: "sales_line_item_stream"
+        task_name: "task_process_sales_line_item"
+
+  - domain_name: "inventory"
+    owner: "data_eng_supply_chain"
+    schedule_interval: "@daily"
+    retries: 2
+    tags: ["domain:inventory", "tier:2", "auto-generated"]
+    streams_to_process:
+      - stream_name: "inventory_levels_stream"
+        task_name: "task_process_inventory_levels"
+
+  - domain_name: "finance"
+    owner: "data_eng_finance"
+    schedule_interval: "@monthly"
+    retries: 1
+    tags: ["domain:finance", "tier:1", "auto-generated"]
+    streams_to_process:
+      - stream_name: "gl_transactions_stream"
+        task_name: "task_process_gl_transactions"
+
+  - domain_name: "marketing"
+    owner: "data_eng_marketing"
+    schedule_interval: "@daily"
+    retries: 3
+    tags: ["domain:marketing", "tier:3", "auto-generated"]
+    streams_to_process:
+      - stream_name: "campaign_performance_stream"
+        task_name: "task_process_campaign_performance"

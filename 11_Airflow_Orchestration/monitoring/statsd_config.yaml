@@ -1,0 +1,35 @@
+# Airflow StatsD Metrics Mapping
+# This configuration maps raw Airflow metrics to Prometheus/Grafana standard formats.
+# Exposes critical scheduler, worker, and task health metrics for the Operations Dashboard.
+
+stat_name_mapping:
+  # Map Task Lifecycle
+  - match: 'airflow.task.failed'
+    match_type: regex
+    name: 'airflow_task_failures_total'
+    labels:
+      dag_id: $1
+      task_id: $2
+  
+  - match: 'airflow.task.success'
+    match_type: regex
+    name: 'airflow_task_successes_total'
+  
+  # Map Scheduler Health
+  - match: 'airflow.scheduler.heartbeat'
+    match_type: exact
+    name: 'airflow_scheduler_heartbeat'
+  
+  # Map Worker Queue times
+  - match: 'airflow.pool.open_slots.*'
+    match_type: regex
+    name: 'airflow_pool_open_slots'
+    labels:
+      pool_name: $1
+      
+  # Map DAG Durations
+  - match: 'airflow.dagrun.duration.success.*'
+    match_type: regex
+    name: 'airflow_dagrun_duration_seconds'
+    labels:
+      dag_id: $1

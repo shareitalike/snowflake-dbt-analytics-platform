@@ -1,0 +1,13 @@
+{
+    "environment": "prod",
+    "snowflake_warehouse": "XLARGE_ETL_WH",
+    "snowflake_database": "PROD_DB",
+    "s3_bronze_bucket": "s3://omniretail-bronze-prod",
+    "s3_silver_bucket": "s3://omniretail-silver-prod",
+    "dbt_project_id": 98765,
+    "dbt_build_job_id": 10001,
+    "dbt_snapshot_job_id": 10002,
+    "dbt_docs_job_id": 10003,
+    "sla_threshold_hours": 2,
+    "alert_email_list": "data_eng_oncall@omniretail.com"
+}

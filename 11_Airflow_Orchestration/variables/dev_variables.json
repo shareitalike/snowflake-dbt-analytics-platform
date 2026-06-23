@@ -1,0 +1,13 @@
+{
+    "environment": "dev",
+    "snowflake_warehouse": "SMALL_ETL_WH",
+    "snowflake_database": "DEV_DB",
+    "s3_bronze_bucket": "s3://omniretail-bronze-dev",
+    "s3_silver_bucket": "s3://omniretail-silver-dev",
+    "dbt_project_id": 98765,
+    "dbt_build_job_id": 20001,
+    "dbt_snapshot_job_id": 20002,
+    "dbt_docs_job_id": 20003,
+    "sla_threshold_hours": 4,
+    "alert_email_list": "data_eng_team@omniretail.com"
+}
