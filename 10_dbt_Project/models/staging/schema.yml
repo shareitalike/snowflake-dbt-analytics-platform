@@ -3,13 +3,14 @@ version: 2
 models:
   - name: stg_orders
     description: "Standardized staging view for Shopify Orders."
-    meta:
-      owner: "@data_engineering"
-      layer: "staging"
-      downstream_dependencies: ["fct_orders"]
-      upstream_dependencies: ["source:shopify.raw_orders"]
-      materialization: "view (Zero-copy, pushes compute to source table)"
-      performance: "No clustering needed at view level. Relies on micro-partitions of raw_orders."
+    config:
+      meta:
+        owner: "@data_engineering"
+        layer: "staging"
+        downstream_dependencies: ["fct_orders"]
+        upstream_dependencies: ["source:shopify.raw_orders"]
+        materialization: "view (Zero-copy, pushes compute to source table)"
+        performance: "No clustering needed at view level. Relies on micro-partitions of raw_orders."
     columns:
       - name: order_id
         description: "Unique identifier for the order."
@@ -24,17 +25,19 @@ models:
         description: "Current status of the order."
         tests:
           - accepted_values:
-              values: ['open', 'closed', 'cancelled', 'pending']
+              arguments:
+                values: ['open', 'closed', 'cancelled', 'pending']
       - name: created_at_utc
         description: "Order creation timestamp in UTC."
 
   - name: stg_customers
     description: "Standardized staging view for Shopify Customers."
-    meta:
-      owner: "@data_engineering"
-      layer: "staging"
-      downstream_dependencies: ["dim_customers"]
-      upstream_dependencies: ["source:shopify.raw_customers"]
+    config:
+      meta:
+        owner: "@data_engineering"
+        layer: "staging"
+        downstream_dependencies: ["dim_customers"]
+        upstream_dependencies: ["source:shopify.raw_customers"]
     columns:
       - name: customer_id
         tests:
@@ -47,11 +50,12 @@ models:
 
   - name: stg_payments
     description: "Standardized staging view for Stripe Payments."
-    meta:
-      owner: "@finance_engineering"
-      layer: "staging"
-      downstream_dependencies: ["fct_payments"]
-      upstream_dependencies: ["source:stripe.raw_charges"]
+    config:
+      meta:
+        owner: "@finance_engineering"
+        layer: "staging"
+        downstream_dependencies: ["fct_payments"]
+        upstream_dependencies: ["source:stripe.raw_charges"]
     columns:
       - name: payment_id
         tests:
@@ -60,5 +64,6 @@ models:
       - name: payment_amount
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 1000000
+              arguments:
+                min_value: 0
+                max_value: 1000000

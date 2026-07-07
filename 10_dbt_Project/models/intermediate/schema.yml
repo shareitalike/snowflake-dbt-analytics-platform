@@ -3,13 +3,14 @@ version: 2
 models:
   - name: int_orders_enriched
     description: "Calculates net revenue and generates surrogate keys for dimensional modeling."
-    meta:
-      owner: "@data_engineering"
-      layer: "intermediate"
-      downstream_dependencies: ["fct_orders"]
-      upstream_dependencies: ["stg_orders", "stg_customers"]
-      materialization: "ephemeral (Compiles as CTE into fct_orders to avoid table sprawl)"
-      performance: "None. Compute is deferred to the consuming Mart."
+    config:
+      meta:
+        owner: "@data_engineering"
+        layer: "intermediate"
+        downstream_dependencies: ["fct_orders"]
+        upstream_dependencies: ["stg_orders", "stg_customers"]
+        materialization: "ephemeral (Compiles as CTE into fct_orders to avoid table sprawl)"
+        performance: "None. Compute is deferred to the consuming Mart."
     columns:
       - name: order_sk
         description: "Surrogate Key for the Order."
@@ -23,12 +24,13 @@ models:
 
   - name: int_payments_reconciled
     description: "Joins Stripe payments against Seed reference data to calculate gateway fees."
-    meta:
-      owner: "@finance_engineering"
-      layer: "intermediate"
-      downstream_dependencies: ["fct_payments"]
-      upstream_dependencies: ["stg_payments", "seed:payment_methods"]
-      materialization: "ephemeral"
+    config:
+      meta:
+        owner: "@finance_engineering"
+        layer: "intermediate"
+        downstream_dependencies: ["fct_payments"]
+        upstream_dependencies: ["stg_payments", "seed:payment_methods"]
+        materialization: "ephemeral"
     columns:
       - name: payment_sk
         tests:
@@ -39,13 +41,14 @@ models:
 
   - name: int_customers_enriched
     description: "Calculates lifetime value and assigns customer segmentation."
-    meta:
-      owner: "@marketing_analytics"
-      layer: "intermediate"
-      downstream_dependencies: ["dim_customers", "fct_marketing_campaigns"]
-      upstream_dependencies: ["stg_customers", "stg_orders"]
-      materialization: "table (Compute-heavy aggregation referenced by multiple downstream marts)"
-      performance: "Materialized as table to act as a DAG checkpoint. Clustered by customer_sk implicitly."
+    config:
+      meta:
+        owner: "@marketing_analytics"
+        layer: "intermediate"
+        downstream_dependencies: ["dim_customers", "fct_marketing_campaigns"]
+        upstream_dependencies: ["stg_customers", "stg_orders"]
+        materialization: "table (Compute-heavy aggregation referenced by multiple downstream marts)"
+        performance: "Materialized as table to act as a DAG checkpoint. Clustered by customer_sk implicitly."
     columns:
       - name: customer_sk
         tests:
@@ -55,4 +58,5 @@ models:
         description: "VIP, Active, or Occasional based on LTV."
         tests:
           - accepted_values:
-              values: ['VIP', 'Active', 'Occasional']
+              arguments:
+                values: ['VIP', 'Active', 'Occasional']

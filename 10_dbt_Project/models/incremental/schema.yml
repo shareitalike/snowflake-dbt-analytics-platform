@@ -3,15 +3,16 @@ version: 2
 models:
   - name: fact_sales_incremental
     description: "Transaction Fact Table implementing MERGE with CDC sliding watermarks."
-    meta:
-      owner: "@data_engineering"
-      layer: "incremental"
-      downstream_dependencies: ["Power BI"]
-      upstream_dependencies: ["int_orders_enriched", "Phase 08 CDC Streams"]
-      materialization: "incremental (MERGE)"
-      expected_row_counts: ">100M / year"
-      refresh_frequency: "15-minute CDC Micro-batch"
-      cluster_keys: "date_sk"
+    config:
+      meta:
+        owner: "@data_engineering"
+        layer: "incremental"
+        downstream_dependencies: ["Power BI"]
+        upstream_dependencies: ["int_orders_enriched", "Phase 08 CDC Streams"]
+        materialization: "incremental (MERGE)"
+        expected_row_counts: ">100M / year"
+        refresh_frequency: "15-minute CDC Micro-batch"
+        cluster_keys: "date_sk"
     columns:
       - name: sales_sk
         tests:
@@ -22,15 +23,16 @@ models:
 
   - name: fact_inventory_incremental
     description: "Periodic Snapshot Fact implementing INSERT_OVERWRITE."
-    meta:
-      owner: "@supply_chain"
-      layer: "incremental"
-      downstream_dependencies: ["Supply Chain Optimization Engine"]
-      upstream_dependencies: ["stg_inventory"]
-      materialization: "incremental (INSERT_OVERWRITE)"
-      expected_row_counts: ">2B / year"
-      refresh_frequency: "Daily"
-      cluster_keys: "date_sk"
+    config:
+      meta:
+        owner: "@supply_chain"
+        layer: "incremental"
+        downstream_dependencies: ["Supply Chain Optimization Engine"]
+        upstream_dependencies: ["stg_inventory"]
+        materialization: "incremental (INSERT_OVERWRITE)"
+        expected_row_counts: ">2B / year"
+        refresh_frequency: "Daily"
+        cluster_keys: "date_sk"
     columns:
       - name: snapshot_sk
         tests:

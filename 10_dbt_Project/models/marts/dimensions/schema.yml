@@ -3,13 +3,14 @@ version: 2
 models:
   - name: dim_customer
     description: "Type 1 Dimension containing customer attributes and segmentation."
-    meta:
-      owner: "@marketing_analytics"
-      layer: "marts"
-      downstream_dependencies: ["Power BI Sales Dashboard"]
-      upstream_dependencies: ["int_customers_enriched"]
-      materialization: "table (Small cardinality, enables fast columnar scans)"
-      performance: "Clustered implicitly by Snowflake micro-partitions. customer_sk is the join key."
+    config:
+      meta:
+        owner: "@marketing_analytics"
+        layer: "marts"
+        downstream_dependencies: ["Power BI Sales Dashboard"]
+        upstream_dependencies: ["int_customers_enriched"]
+        materialization: "table (Small cardinality, enables fast columnar scans)"
+        performance: "Clustered implicitly by Snowflake micro-partitions. customer_sk is the join key."
     columns:
       - name: customer_sk
         description: "Primary Surrogate Key."
@@ -25,26 +26,32 @@ models:
         description: "VIP, Active, or Occasional."
         tests:
           - accepted_values:
-              values: ['VIP', 'Active', 'Occasional', 'UNKNOWN']
-              severity: error
+              config:
+                severity: error
+              arguments:
+                values: ['VIP', 'Active', 'Occasional', 'UNKNOWN']
           - dbt_expectations.expect_column_value_lengths_to_be_between:
-              min_value: 3
-              max_value: 15
+              arguments:
+                min_value: 3
+                max_value: 15
       - name: email_address
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-              severity: warn
+              config:
+                severity: warn
+              arguments:
+                regex: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
 
   - name: dim_date
     description: "Conformed Date Dimension."
-    meta:
-      owner: "@data_engineering"
-      layer: "marts"
-      downstream_dependencies: ["ALL_FACTS"]
-      upstream_dependencies: ["dbt_utils.date_spine"]
-      materialization: "table (Static reference data)"
-      performance: "date_sk is an integer (YYYYMMDD) specifically to optimize Snowflake JOIN performance against fact tables."
+    config:
+      meta:
+        owner: "@data_engineering"
+        layer: "marts"
+        downstream_dependencies: ["ALL_FACTS"]
+        upstream_dependencies: ["dbt_utils.date_spine"]
+        materialization: "table (Static reference data)"
+        performance: "date_sk is an integer (YYYYMMDD) specifically to optimize Snowflake JOIN performance against fact tables."
     columns:
       - name: date_sk
         tests:
@@ -56,12 +63,13 @@ models:
 
   - name: dim_product
     description: "Type 1 Dimension containing product hierarchy."
-    meta:
-      owner: "@supply_chain"
-      layer: "marts"
-      downstream_dependencies: ["fct_inventory", "fct_sales"]
-      upstream_dependencies: ["stg_inventory"]
-      materialization: "table"
+    config:
+      meta:
+        owner: "@supply_chain"
+        layer: "marts"
+        downstream_dependencies: ["fct_inventory", "fct_sales"]
+        upstream_dependencies: ["stg_inventory"]
+        materialization: "table"
     columns:
       - name: product_sk
         tests:

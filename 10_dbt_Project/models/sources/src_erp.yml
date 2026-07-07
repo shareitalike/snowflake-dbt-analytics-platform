@@ -5,11 +5,12 @@ sources:
     database: "{{ var('raw_database') }}"
     schema: SC_ORACLE_ERP
     description: "On-prem ERP synchronization via CDC."
-    tags: ["domain:erp", "layer:bronze"]
-    loaded_at_field: metadata_inserted_at
-    freshness:
-      warn_after: {count: 12, period: hour}
-      error_after: {count: 24, period: hour}
+    config:
+      tags: ["domain:erp", "layer:bronze"]
+      loaded_at_field: metadata_inserted_at
+      freshness:
+        warn_after: {count: 12, period: hour}
+        error_after: {count: 24, period: hour}
     tables:
       - name: raw_inventory
         columns:
@@ -31,7 +32,8 @@ sources:
     database: "{{ var('raw_database') }}"
     schema: SC_POS
     description: "Physical retail point-of-sale systems."
-    tags: ["domain:retail", "layer:bronze"]
+    config:
+      tags: ["domain:retail", "layer:bronze"]
     tables:
       - name: raw_store_transactions
         columns:
@@ -44,7 +46,8 @@ sources:
     database: "{{ var('raw_database') }}"
     schema: SC_SALESFORCE
     description: "CRM data for B2B sales and Marketing."
-    tags: ["domain:marketing", "layer:bronze"]
+    config:
+      tags: ["domain:marketing", "layer:bronze"]
     tables:
       - name: raw_accounts
       - name: raw_leads
