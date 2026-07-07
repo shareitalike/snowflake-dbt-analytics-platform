@@ -26,6 +26,15 @@ models:
         tests:
           - accepted_values:
               values: ['VIP', 'Active', 'Occasional', 'UNKNOWN']
+              severity: error
+          - dbt_expectations.expect_column_value_lengths_to_be_between:
+              min_value: 3
+              max_value: 15
+      - name: email_address
+        tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+              severity: warn
 
   - name: dim_date
     description: "Conformed Date Dimension."

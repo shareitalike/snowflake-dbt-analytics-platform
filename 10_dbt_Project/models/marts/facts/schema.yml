@@ -15,17 +15,30 @@ models:
     columns:
       - name: sales_sk
         tests:
-          - unique
-          - not_null
+          - unique:
+              severity: error
+          - not_null:
+              severity: error
       - name: date_sk
         tests:
           - not_null
       - name: customer_sk
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_sk
+              severity: error
       - name: net_revenue
         tests:
           - not_null
+          - is_positive:
+              severity: error
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 100000
+              row_condition: "degenerate_order_id is not null"
+              severity: warn
 
   - name: fct_orders
     description: "Accumulating Snapshot Fact capturing overarching Order headers and milestones."
