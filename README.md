@@ -13,6 +13,91 @@ The platform is designed around a strict **Medallion architecture (Bronze -> Sil
 
 ## 🏗️ Architecture & Data Flow
 
+```mermaid
+graph TD
+    subgraph Data Sources
+        S1[ERP System]
+        S2[Salesforce]
+        S3[eCommerce Platform]
+    end
+
+    subgraph AWS Cloud [AWS Cloud Platform]
+        S3B[S3 Raw Bucket]
+        SQS[SQS Notification]
+        SM[Secrets Manager]
+    end
+
+    subgraph Snowflake Data Cloud [Snowflake Enterprise Edition]
+        subgraph Storage Layer
+            BRONZE[(Bronze / Raw)]
+            SILVER[(Silver / Integration)]
+            GOLD[(Gold / Analytics)]
+        end
+        
+        subgraph Compute Layer
+            INGEST_WH[Ingest WH]
+            TRANSFORM_WH[Transform WH]
+            BI_WH[Reporting WH]
+        end
+        
+        subgraph Ingestion & CDC
+            PIPE(Snowpipe)
+            STREAM(Snowflake Streams)
+            TASK(Snowflake Tasks)
+        end
+    end
+
+    subgraph Transformation Engine [dbt Cloud]
+        DBT_SRC[dbt Sources]
+        DBT_STG[Staging Models]
+        DBT_INT[Intermediate Models]
+        DBT_DIM[Dimensions]
+        DBT_FCT[Fact Tables]
+    end
+
+    subgraph Orchestration & CI/CD
+        AIRFLOW((Apache Airflow))
+        GITHUB[GitHub Actions]
+        TF{Terraform}
+    end
+
+    subgraph Consumers
+        PBI[Power BI]
+    end
+
+    %% Data Flow
+    S1 -->|Fivetran/Custom| S3B
+    S2 -->|Fivetran/Custom| S3B
+    S3 -->|Fivetran/Custom| S3B
+    
+    S3B -->|Event Trigger| SQS
+    SQS -->|Notify| PIPE
+    PIPE -->|Auto-Ingest via INGEST_WH| BRONZE
+    
+    BRONZE -->|Track Changes| STREAM
+    STREAM -->|Scheduled via| TASK
+    TASK -->|MERGE via TRANSFORM_WH| SILVER
+    
+    SILVER -->|Reference| DBT_SRC
+    DBT_SRC -->|Clean & Cast| DBT_STG
+    DBT_STG -->|Join & Logic| DBT_INT
+    DBT_INT -->|Build| DBT_DIM
+    DBT_INT -->|Build| DBT_FCT
+    DBT_DIM -->|Materialize via TRANSFORM_WH| GOLD
+    DBT_FCT -->|Materialize via TRANSFORM_WH| GOLD
+    
+    GOLD -->|Query via BI_WH| PBI
+
+    %% Orchestration & Deployment Flow
+    AIRFLOW -.->|Trigger| TASK
+    AIRFLOW -.->|API Call| Transformation Engine
+    AIRFLOW -.->|Fetch| SM
+    
+    GITHUB -.->|Deploy Infra| TF
+    TF -.->|Provision| Snowflake Data Cloud
+    TF -.->|Provision| AWS Cloud
+```
+
 Our architecture enforces a strict **"Push-Down Compute"** paradigm. 
 - **Orchestration (The Brain):** **Apache Airflow** (running on AWS MWAA) acts purely as an API control plane. It processes *no* data itself, ensuring workers remain lightweight and highly scalable.
 - **Compute (The Muscle):** All data processing is pushed down to **Snowflake** (via Snowpark Python and dbt SQL).
