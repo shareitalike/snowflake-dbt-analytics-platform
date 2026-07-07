@@ -1,0 +1,53 @@
+/* ==============================================================================
+ * FILE: case_study_01_slow_query.sql
+ * PHASE: 12 - Platform Engineering
+ * 
+ * EXPLANATION: Presents a real-world case study documenting how to diagnose and fix a slow query using the Snowflake Query Profile.
+ * DESIGN DECISIONS: Analyzes a 14GB remote storage spill caused by a full table scan, and resolves it by applying a clustering key rather than upsizing the warehouse.
+ * WHY: This serves as critical training material for the engineering team. It reinforces the architectural standard that upsizing compute is the last resort, and analyzing query execution plans (pruning, spilling) is the primary method for resolving performance bottlenecks.
+ * 
+ * ORIGINAL SCENARIO: 
+ * Runtime: 12 minutes 14 seconds | Credits: 8.2
+ * Partitions Scanned: 4,200 / 4,200 (100% full table scan)
+ * Bytes Spilled to Remote: 14 GB
+ * ============================================================================== */
+
+-- STEP 1: Reproduce the slow query
+-- SELECT
+--     s.STORE_ID,
+--     p.PRODUCT_CATEGORY,
+--     SUM(f.SALE_AMOUNT) AS total_revenue,
+--     COUNT(DISTINCT f.CUSTOMER_ID) AS unique_customers
+-- FROM OMNIRETAIL.GOLD.FCT_SALES f
+-- JOIN OMNIRETAIL.GOLD.DIM_STORE s ON f.STORE_KEY = s.STORE_KEY
+-- JOIN OMNIRETAIL.GOLD.DIM_PRODUCT p ON f.PRODUCT_KEY = p.PRODUCT_KEY
+-- WHERE f.SALE_DATE BETWEEN '2025-01-01' AND '2025-12-31'
+-- GROUP BY 1, 2
+-- ORDER BY total_revenue DESC;
+
+-- STEP 2: Query Profile Analysis (What we observed)
+-- Node 1: TableScan on FCT_SALES -> 100% partition scan (NO pruning)
+-- Node 3: Sort -> "Bytes Spilled to Remote Storage: 14 GB"
+--   This means the MEDIUM warehouse ran out of local SSD cache and had to
+--   spill the sort operation to remote S3, causing massive latency.
+--
+-- ROOT CAUSE IDENTIFIED:
+--   1. FCT_SALES has no clustering key. Date-range filter cannot prune partitions.
+--   2. The MEDIUM warehouse is too small for a full-year sort on 500M rows.
+
+-- STEP 3: Fix Applied
+ALTER TABLE OMNIRETAIL.GOLD.FCT_SALES CLUSTER BY (SALE_DATE, STORE_ID);
+-- We do NOT upsize the warehouse. We fix the query pattern instead.
+
+-- STEP 4: Results (AFTER clustering settled, ~24 hours later)
+-- Runtime: 18 seconds (down from 12 minutes — 40x improvement)
+-- Credits: 0.3 (down from 8.2 — 96% reduction)
+-- Partitions Scanned: 210 / 4,200 (5% — excellent pruning)
+-- Bytes Spilled to Remote: 0 GB (data fits in cache after pruning)
+
+-- ==============================================================================
+-- "The first instinct of a junior engineer is to upsize the warehouse.
+--  A senior engineer analyzes the Query Profile, identifies the full table scan,
+--  and applies a clustering key instead. This solves the problem permanently
+--  and actually REDUCES cost."
+-- ==============================================================================
