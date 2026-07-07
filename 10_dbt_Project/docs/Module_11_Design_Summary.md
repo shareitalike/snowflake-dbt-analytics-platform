@@ -9,6 +9,6 @@ dbt tracks internal lineage (Staging -> Intermediate -> Marts) natively via the 
 **Exposures** solve this by formally defining downstream consumers (e.g., Power BI Dashboards, Machine Learning models) inside the dbt codebase. 
 If an Analytics Engineer attempts to deprecate a column in `dim_customer`, dbt will warn them: *"Wait! The Executive Power BI Dashboard depends on this column!"*
 
-### The Business Glossary (`{% docs %}`)
+### The Business Glossary (`docs` blocks)
 Writing the definition of "Gross Merchandise Value (GMV)" inside the `schema.yml` of 15 different models is an anti-pattern. If Finance updates the definition, you must find and replace it 15 times.
-By utilizing dbt `{% docs %}` blocks, we write the Business Definition *once* in a centralized markdown file (`business_glossary.md`). The `schema.yml` files simply reference it via `{{ doc('gmv') }}`. This is the cornerstone of enterprise Data Governance.
+By utilizing dbt `docs` blocks (`{%- raw -%}{%- endraw -%}` pattern), we write the Business Definition *once* in a centralized markdown file (`business_glossary.md`). The `schema.yml` files simply reference it via `doc('gmv')`. This is the cornerstone of enterprise Data Governance.

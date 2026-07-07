@@ -12,7 +12,7 @@ Mandate that ALL tier-1 BI dashboards must be mapped as dbt Exposures. Engineers
 **Symptom:** The data catalog defines `Active Customer` as "purchased within 30 days," but the business updated the definition to "90 days" last year.
 **Root Cause:** Definitions were hardcoded across dozens of `schema.yml` files, making it impossible to keep them synchronized with the business.
 **Resolution:**
-Migrate all definitions to the `catalog/business_glossary.md` using `{% docs %}` blocks. Assign a strict "Data Owner" (e.g., `@finance_team`) to the `schema.yml` meta block so engineers know exactly who to Slack for definition approvals.
+Migrate all definitions to the `catalog/business_glossary.md` using `docs` blocks. Assign a strict "Data Owner" (e.g., `@finance_team`) to the `schema.yml` meta block so engineers know exactly who to Slack for definition approvals.
 
 ### 3. PII / Sensitivity Leaks
 **Symptom:** A data scientist accidentally queries plaintext SSNs because the column wasn't masked.
