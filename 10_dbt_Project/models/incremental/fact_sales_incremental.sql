@@ -1,3 +1,4 @@
+-- CI Pipeline Trigger Test
 {{
   config(
     materialized = 'incremental',
