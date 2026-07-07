@@ -15,19 +15,20 @@ The platform is designed around a strict **Medallion architecture (Bronze -> Sil
 
 ```mermaid
 graph TD
-    subgraph Data Sources
+    subgraph Data_Sources
         S1[ERP System]
         S2[Salesforce]
         S3[eCommerce Platform]
     end
 
-    subgraph AWS Cloud [AWS Cloud Platform]
+    subgraph AWS_Cloud [AWS Cloud Platform]
         S3B[S3 Raw Bucket]
         SQS[SQS Notification]
         SM[Secrets Manager]
     end
 
-    subgraph Snowflake Data Cloud [Snowflake Enterprise Edition]
+    subgraph Snowflake_Data_Cloud [Snowflake Enterprise Edition]
+
         subgraph Storage Layer
             BRONZE[(Bronze / Raw)]
             SILVER[(Silver / Integration)]
@@ -94,8 +95,8 @@ graph TD
     AIRFLOW -.->|Fetch| SM
     
     GITHUB -.->|Deploy Infra| TF
-    TF -.->|Provision| Snowflake Data Cloud
-    TF -.->|Provision| AWS Cloud
+    TF -.->|Provision| Snowflake_Data_Cloud
+    TF -.->|Provision| AWS_Cloud
 ```
 
 Our architecture enforces a strict **"Push-Down Compute"** paradigm. 
