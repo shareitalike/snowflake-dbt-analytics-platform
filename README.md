@@ -47,7 +47,7 @@ graph TD
         end
     end
 
-    subgraph Transformation Engine [dbt Cloud]
+    subgraph Transformation_Engine [dbt Cloud]
         DBT_SRC[dbt Sources]
         DBT_STG[Staging Models]
         DBT_INT[Intermediate Models]
@@ -90,7 +90,7 @@ graph TD
 
     %% Orchestration & Deployment Flow
     AIRFLOW -.->|Trigger| TASK
-    AIRFLOW -.->|API Call| Transformation Engine
+    AIRFLOW -.->|API Call| Transformation_Engine
     AIRFLOW -.->|Fetch| SM
     
     GITHUB -.->|Deploy Infra| TF
