@@ -1,17 +1,13 @@
 {% snapshot snap_customer %}
 
+{#- Strategy: timestamp | Defensive: invalidate_hard_deletes -#}
 {{
     config(
       target_schema='snapshots',
       unique_key='customer_id',
-      
-      -- Strategy configuration
       strategy='timestamp',
       updated_at='dbt_updated_at',
-      
-      -- Defensive configurations
-      invalidate_hard_deletes=True,
-      
+      invalidate_hard_deletes=true,
       tags=['domain:ecommerce', 'layer:snapshot']
     )
 }}

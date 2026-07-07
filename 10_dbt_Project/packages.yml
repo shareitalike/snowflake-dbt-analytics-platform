@@ -1,16 +1,16 @@
 packages:
   # Standard utility macros for DRY code
   - package: dbt-labs/dbt_utils
-    version: 1.3.0
+    version: 1.4.1
 
   # Enterprise expectations for strict Data Quality assertions in the Gold layer
-  - package: calogica/dbt_expectations
-    version: 0.10.3
+  - package: metaplane/dbt_expectations
+    version: 0.10.10
 
   # Audit metadata and execution tracking
   - package: dbt-labs/dbt_project_evaluator
-    version: 0.9.0
+    version: 1.3.2
 
   # Automate the generation of schema.yml documentation stubs
   - package: dbt-labs/codegen
-    version: 0.13.0
+    version: 0.14.1

@@ -1,17 +1,13 @@
 {% snapshot snap_product %}
 
+{#- Strategy: check | Defensive: invalidate_hard_deletes -#}
 {{
     config(
       target_schema='snapshots',
       unique_key='product_sku',
-      
-      -- Strategy configuration
       strategy='check',
       check_cols=['is_product_active', 'warehouse_id'],
-      
-      -- Defensive configurations
-      invalidate_hard_deletes=True,
-      
+      invalidate_hard_deletes=true,
       tags=['domain:supply_chain', 'layer:snapshot']
     )
 }}

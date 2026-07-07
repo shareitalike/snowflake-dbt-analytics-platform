@@ -1,17 +1,13 @@
 {% snapshot snap_supplier %}
 
+{#- Strategy: check | Defensive: invalidate_hard_deletes -#}
 {{
     config(
       target_schema='snapshots',
       unique_key='supplier_id',
-      
-      -- Strategy configuration
       strategy='check',
       check_cols=['contract_status', 'payment_terms', 'contact_email'],
-      
-      -- Defensive configurations
-      invalidate_hard_deletes=True,
-      
+      invalidate_hard_deletes=true,
       tags=['domain:supply_chain', 'layer:snapshot']
     )
 }}

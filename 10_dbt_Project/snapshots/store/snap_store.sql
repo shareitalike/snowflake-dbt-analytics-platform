@@ -1,17 +1,13 @@
 {% snapshot snap_store %}
 
+{#- Strategy: check | Defensive: invalidate_hard_deletes -#}
 {{
     config(
       target_schema='snapshots',
       unique_key='store_id',
-      
-      -- Strategy configuration
       strategy='check',
       check_cols=['store_manager_id', 'region', 'is_open'],
-      
-      -- Defensive configurations
-      invalidate_hard_deletes=True,
-      
+      invalidate_hard_deletes=true,
       tags=['domain:retail', 'layer:snapshot']
     )
 }}

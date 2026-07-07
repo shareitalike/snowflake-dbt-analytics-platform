@@ -1,17 +1,13 @@
 {% snapshot snap_employee %}
 
+{#- Strategy: timestamp | Defensive: invalidate_hard_deletes -#}
 {{
     config(
       target_schema='snapshots',
       unique_key='employee_id',
-      
-      -- Strategy configuration
       strategy='timestamp',
       updated_at='last_modified_date',
-      
-      -- Defensive configurations
-      invalidate_hard_deletes=True,
-      
+      invalidate_hard_deletes=true,
       tags=['domain:hr', 'layer:snapshot']
     )
 }}
