@@ -1,0 +1,52 @@
+name: Enterprise Release Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+permissions:
+  id-token: write # Required for OIDC Authentication to AWS
+  contents: read  # Required for checkout
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 1. Zero Trust: Authenticate to AWS via OIDC (No long-lived access keys!)
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/prod-github-actions-role
+          aws-region: us-east-1
+
+      # 2. Security: Scan for hardcoded secrets
+      - name: Detect Hardcoded Secrets (TruffleHog)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+
+      # 3. Security: Check for vulnerable Python packages
+      - name: Dependency Scan (Safety)
+        run: |
+          pip install safety
+          safety check -r 11_Airflow_Orchestration/requirements.txt --full-report
+
+      # 4. Terraform: Plan & Apply Snowflake/AWS Infrastructure
+      - name: Terraform Apply
+        working-directory: 12_Platform_Engineering/terraform/environments/prod
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      # 5. Airflow: Deploy DAGs to S3 MWAA bucket
+      - name: Deploy Airflow DAGs
+        run: |
+          aws s3 sync 11_Airflow_Orchestration/dags s3://omniretail-airflow-prod-bucket/dags --delete

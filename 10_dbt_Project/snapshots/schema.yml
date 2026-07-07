@@ -1,0 +1,73 @@
+version: 2
+
+snapshots:
+  - name: snap_customer
+    description: "SCD Type 2 tracking of Customer profiles (Timestamp Strategy)."
+    meta:
+      owner: "@marketing_analytics"
+      layer: "snapshot"
+      downstream_dependencies: ["int_customers_enriched"]
+      upstream_dependencies: ["stg_customers"]
+      expected_row_counts: "5M base + daily mutations"
+      refresh_frequency: "Daily CDC batch"
+    columns:
+      - name: customer_id
+        description: "Source Business Key."
+        tests:
+          - not_null
+      - name: dbt_valid_from
+        description: "Snapshot auto-generated effective date."
+        tests:
+          - not_null
+      - name: dbt_valid_to
+        description: "Snapshot auto-generated expiry date (Null if current)."
+
+  - name: snap_product
+    description: "SCD Type 2 tracking of Products (Check Strategy)."
+    meta:
+      owner: "@supply_chain"
+      layer: "snapshot"
+      downstream_dependencies: ["dim_product"]
+      upstream_dependencies: ["stg_inventory"]
+      expected_row_counts: "50k base"
+      refresh_frequency: "Daily"
+    columns:
+      - name: product_sku
+        tests:
+          - not_null
+
+  - name: snap_store
+    description: "SCD Type 2 tracking of Store entities (Check Strategy to ignore POS heartbeat timestamps)."
+    meta:
+      owner: "@retail_ops"
+      layer: "snapshot"
+      expected_row_counts: "1,500 base"
+      refresh_frequency: "Daily"
+    columns:
+      - name: store_id
+        tests:
+          - not_null
+
+  - name: snap_employee
+    description: "SCD Type 2 tracking of Employees (Timestamp Strategy relying on Workday metadata)."
+    meta:
+      owner: "@hr_analytics"
+      layer: "snapshot"
+      expected_row_counts: "15,000 base"
+      refresh_frequency: "Daily"
+    columns:
+      - name: employee_id
+        tests:
+          - not_null
+
+  - name: snap_supplier
+    description: "SCD Type 2 tracking of Suppliers (Check Strategy due to lack of source timestamps)."
+    meta:
+      owner: "@supply_chain"
+      layer: "snapshot"
+      expected_row_counts: "3,000 base"
+      refresh_frequency: "Daily"
+    columns:
+      - name: supplier_id
+        tests:
+          - not_null

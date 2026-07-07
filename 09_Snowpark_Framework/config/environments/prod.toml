@@ -1,0 +1,20 @@
+[environment]
+name = "production"
+region = "us-east-1"
+debug_mode = false
+
+[snowflake]
+account = "omni_retail_prod"
+database = "DB_PROD_CURATED"
+schema = "SC_UTILITIES"
+role = "DATA_ENGINEER_PROD"
+warehouse = "WH_TRANSFORM_PROD"
+
+[session]
+timeout_ms = 1800000
+max_retries = 5
+retry_backoff_seconds = 5
+
+[secrets]
+strategy = "aws_secrets_manager"
+secret_name = "snowflake/omni/prod_sa"

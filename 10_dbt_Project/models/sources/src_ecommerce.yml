@@ -1,0 +1,67 @@
+version: 2
+
+sources:
+  - name: shopify
+    database: "{{ var('raw_database') }}"
+    schema: SC_SHOPIFY
+    description: "Raw e-commerce transaction data ingested via Fivetran/Snowpipe."
+    tags: ["domain:ecommerce", "layer:bronze", "owner:data_eng"]
+    
+    # SLA Freshness checking
+    loaded_at_field: metadata_inserted_at
+    freshness:
+      warn_after: {count: 2, period: hour}
+      error_after: {count: 4, period: hour}
+
+    tables:
+      - name: raw_orders
+        description: "Raw order payloads containing JSON variants."
+        columns:
+          - name: order_id
+            description: "Primary key"
+            tests:
+              - unique
+              - not_null
+          - name: metadata_inserted_at
+            description: "CDC insertion timestamp."
+
+      - name: raw_customers
+        description: "Raw customer profiles."
+        columns:
+          - name: customer_id
+            tests:
+              - unique
+              - not_null
+
+  - name: stripe
+    database: "{{ var('raw_database') }}"
+    schema: SC_STRIPE
+    description: "Payment gateway data."
+    tags: ["domain:finance", "layer:bronze", "owner:finance_eng"]
+    loaded_at_field: metadata_inserted_at
+    freshness:
+      warn_after: {count: 1, period: hour}
+      error_after: {count: 2, period: hour}
+    tables:
+      - name: raw_charges
+        columns:
+          - name: charge_id
+            tests:
+              - unique
+              - not_null
+          - name: amount
+            tests:
+              - not_null
+          
+  - name: zendesk
+    database: "{{ var('raw_database') }}"
+    schema: SC_ZENDESK
+    description: "Customer support ticketing data."
+    tags: ["domain:support", "layer:bronze"]
+    tables:
+      - name: raw_tickets
+        columns:
+          - name: ticket_id
+            tests:
+              - unique
+              - not_null

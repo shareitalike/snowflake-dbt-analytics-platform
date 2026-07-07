@@ -1,0 +1,54 @@
+name: 'enterprise_retail_analytics'
+version: '1.0.0'
+config-version: 2
+
+# This defines the scope of this project. It is separate from the Snowpark ingest/transform logic.
+profile: 'retail_snowflake_profile'
+
+# Define standard paths for the Enterprise repository structure
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+docs-paths: ["docs"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Defining variables to dynamically configure databases/schemas based on the target environment.
+# Target maps to dev/qa/prod
+vars:
+  raw_database: "{{ 'DB_PROD_RAW' if target.name == 'prod' else 'DB_DEV_RAW' }}"
+  silver_database: "{{ 'DB_PROD_SILVER' if target.name == 'prod' else 'DB_DEV_SILVER' }}"
+  gold_database: "{{ 'DB_PROD_GOLD' if target.name == 'prod' else 'DB_DEV_GOLD' }}"
+
+# Core materialization strategy and tagging framework
+models:
+  enterprise_retail_analytics:
+    # Everything in Staging is an Ephemeral or View model. No hard physical tables.
+    staging:
+      +materialized: view
+      +schema: STG
+      +tags: ["layer:staging"]
+      
+    # Intermediate models handle complex SQL joins but aren't exposed to BI tools.
+    intermediate:
+      +materialized: ephemeral
+      +tags: ["layer:intermediate"]
+
+    # Marts (Gold Layer) are strictly tables or incremental models for performance.
+    marts:
+      +schema: MARTS
+      +tags: ["layer:marts"]
+      dimensions:
+        +materialized: table
+        +tags: ["type:dimension"]
+      facts:
+        +materialized: incremental
+        +tags: ["type:fact"]
+        +incremental_strategy: merge
+        +on_schema_change: append_new_columns

@@ -1,0 +1,31 @@
+# airflow_connections.yaml
+# Airflow natively supports importing connections from a YAML file or AWS Secrets Manager.
+# We map the Airflow Connection IDs directly to the AWS Secrets Manager ARNs.
+
+connections:
+  snowflake_default:
+    conn_type: snowflake
+    description: "Enterprise Snowflake Connection managed by AWS Secrets Manager"
+    host: "omniretail.snowflakecomputing.com"
+    login: "AIRFLOW_SVC"
+    # Password is NOT stored here. Airflow uses the SecretsManagerBackend to fetch it at runtime.
+    # secret_id: "prod/snowflake_airflow_svc_password"
+    extra:
+      account: "omniretail"
+      warehouse: "PROD_DATA_ENG_WH"
+      database: "PROD_METADATA_DB"
+      role: "PROD_DATA_ENGINEER_ROLE"
+      # For Key-Pair authentication:
+      # private_key_file: "/var/secrets/snowflake_rsa_key.p8"
+
+  dbt_cloud_default:
+    conn_type: dbt_cloud
+    description: "dbt Cloud API Token"
+    login: "omniretail_tenant_id"
+    # Password (API Token) fetched from AWS Secrets Manager at runtime.
+
+  slack_api_default:
+    conn_type: http
+    description: "Slack Webhook for Enterprise Alert Router"
+    host: "https://hooks.slack.com/services/"
+    # Password (Token) fetched from AWS Secrets Manager at runtime.

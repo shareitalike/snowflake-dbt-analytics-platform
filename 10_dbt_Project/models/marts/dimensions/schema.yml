@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: "Type 1 Dimension containing customer attributes and segmentation."
+    meta:
+      owner: "@marketing_analytics"
+      layer: "marts"
+      downstream_dependencies: ["Power BI Sales Dashboard"]
+      upstream_dependencies: ["int_customers_enriched"]
+      materialization: "table (Small cardinality, enables fast columnar scans)"
+      performance: "Clustered implicitly by Snowflake micro-partitions. customer_sk is the join key."
+    columns:
+      - name: customer_sk
+        description: "Primary Surrogate Key."
+        tests:
+          - unique
+          - not_null
+      - name: customer_bk
+        description: "Natural source business key."
+        tests:
+          - unique
+          - not_null
+      - name: customer_segment
+        description: "VIP, Active, or Occasional."
+        tests:
+          - accepted_values:
+              values: ['VIP', 'Active', 'Occasional', 'UNKNOWN']
+
+  - name: dim_date
+    description: "Conformed Date Dimension."
+    meta:
+      owner: "@data_engineering"
+      layer: "marts"
+      downstream_dependencies: ["ALL_FACTS"]
+      upstream_dependencies: ["dbt_utils.date_spine"]
+      materialization: "table (Static reference data)"
+      performance: "date_sk is an integer (YYYYMMDD) specifically to optimize Snowflake JOIN performance against fact tables."
+    columns:
+      - name: date_sk
+        tests:
+          - unique
+          - not_null
+      - name: is_weekend
+        tests:
+          - not_null
+
+  - name: dim_product
+    description: "Type 1 Dimension containing product hierarchy."
+    meta:
+      owner: "@supply_chain"
+      layer: "marts"
+      downstream_dependencies: ["fct_inventory", "fct_sales"]
+      upstream_dependencies: ["stg_inventory"]
+      materialization: "table"
+    columns:
+      - name: product_sk
+        tests:
+          - unique
+          - not_null

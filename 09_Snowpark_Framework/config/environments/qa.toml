@@ -1,0 +1,20 @@
+[environment]
+name = "qa"
+region = "us-east-1"
+debug_mode = true
+
+[snowflake]
+account = "omni_retail_qa"
+database = "DB_QA_CURATED"
+schema = "SC_UTILITIES"
+role = "DATA_ENGINEER_QA"
+warehouse = "WH_TRANSFORM_QA"
+
+[session]
+timeout_ms = 600000
+max_retries = 3
+retry_backoff_seconds = 4
+
+[secrets]
+strategy = "aws_secrets_manager"
+secret_name = "snowflake/omni/qa_sa"

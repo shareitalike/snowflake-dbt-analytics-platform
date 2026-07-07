@@ -1,0 +1,40 @@
+version: 2
+
+seeds:
+  - name: country_codes
+    description: "Static reference table for Country ISO mappings."
+    tags: ["domain:reference", "layer:seeds", "owner:master_data"]
+    config:
+      schema: REF
+      column_types:
+        country_code: varchar(2)
+        country_name: varchar(100)
+        region: varchar(50)
+        is_active: boolean
+    columns:
+      - name: country_code
+        tests:
+          - unique
+          - not_null
+
+  - name: currency_codes
+    description: "Static reference table for Currencies."
+    tags: ["domain:reference", "layer:seeds"]
+    config:
+      schema: REF
+    columns:
+      - name: currency_code
+        tests:
+          - unique
+          - not_null
+          
+  - name: payment_methods
+    description: "Static reference table for Payment Methods and gateway fees."
+    tags: ["domain:reference", "layer:seeds"]
+    config:
+      schema: REF
+    columns:
+      - name: payment_method_code
+        tests:
+          - unique
+          - not_null

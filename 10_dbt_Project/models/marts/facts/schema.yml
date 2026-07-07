@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: fct_sales
+    description: "Transaction Fact Table capturing line-item sales metrics."
+    meta:
+      owner: "@data_engineering"
+      layer: "marts"
+      downstream_dependencies: ["Power BI Sales Dashboard"]
+      upstream_dependencies: ["int_orders_enriched"]
+      materialization: "incremental (MERGE)"
+      expected_row_counts: ">100M / year"
+      refresh_frequency: "Hourly"
+      cluster_keys: "date_sk"
+    columns:
+      - name: sales_sk
+        tests:
+          - unique
+          - not_null
+      - name: date_sk
+        tests:
+          - not_null
+      - name: customer_sk
+        tests:
+          - not_null
+      - name: net_revenue
+        tests:
+          - not_null
+
+  - name: fct_orders
+    description: "Accumulating Snapshot Fact capturing overarching Order headers and milestones."
+    meta:
+      owner: "@data_engineering"
+      layer: "marts"
+      downstream_dependencies: ["Power BI Fulfillment Dashboard"]
+      upstream_dependencies: ["int_orders_enriched"]
+      materialization: "incremental (MERGE)"
+      expected_row_counts: ">30M / year"
+      refresh_frequency: "15-minute micro-batch"
+      cluster_keys: "date_sk"
+    columns:
+      - name: order_sk
+        tests:
+          - unique
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['open', 'closed', 'cancelled', 'pending']

@@ -1,0 +1,41 @@
+version: 2
+
+# Enterprise Semantic Layer (MetricFlow)
+# Defines standard metrics that can be dynamically aggregated across dimensions in BI tools.
+
+semantic_models:
+  - name: sm_sales
+    description: "Semantic model mapping for the fct_sales physical table."
+    model: ref('fct_sales')
+    
+    entities:
+      - name: sales_id
+        type: primary
+        expr: sales_sk
+      - name: customer
+        type: foreign
+        expr: customer_sk
+    
+    dimensions:
+      - name: order_date
+        type: time
+        type_params:
+          time_granularity: day
+        expr: to_date(date_sk::varchar, 'YYYYMMDD')
+
+    measures:
+      - name: sum_net_revenue
+        description: "The total net revenue generated."
+        expr: net_revenue
+        agg: sum
+
+metrics:
+  - name: net_revenue_metric
+    description: "{{ doc('net_revenue') }}"
+    type: simple
+    label: Net Revenue (USD)
+    type_params:
+      measure: sum_net_revenue
+    meta:
+      owner: finance_team
+      sensitivity: high
