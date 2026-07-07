@@ -1,0 +1,9 @@
+country_code,country_name,region,is_active
+US,United States,North America,TRUE
+CA,Canada,North America,TRUE
+GB,United Kingdom,Europe,TRUE
+FR,France,Europe,TRUE
+DE,Germany,Europe,TRUE
+AU,Australia,APAC,TRUE
+JP,Japan,APAC,TRUE
+MX,Mexico,Latin America,TRUE
