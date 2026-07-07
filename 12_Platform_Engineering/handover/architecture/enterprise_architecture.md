@@ -10,13 +10,13 @@ graph TD
         S3[eCommerce Platform]
     end
 
-    subgraph AWS Cloud [AWS Cloud Platform]
+    subgraph AWS_Cloud [AWS Cloud Platform]
         S3B[S3 Raw Bucket]
         SQS[SQS Notification]
         SM[Secrets Manager]
     end
 
-    subgraph Snowflake Data Cloud [Snowflake Enterprise Edition]
+    subgraph Snowflake_Data_Cloud [Snowflake Enterprise Edition]
         subgraph Storage Layer
             BRONZE[(Bronze / Raw)]
             SILVER[(Silver / Integration)]
@@ -44,7 +44,7 @@ graph TD
         end
     end
 
-    subgraph Transformation Engine [dbt Cloud]
+    subgraph Transformation_Engine [dbt Cloud]
         DBT_SRC[dbt Sources]
         DBT_STG[Staging Models]
         DBT_INT[Intermediate Models]
@@ -90,12 +90,12 @@ graph TD
 
     %% Orchestration & Deployment Flow
     AIRFLOW -.->|Trigger| TASK
-    AIRFLOW -.->|API Call| Transformation Engine
+    AIRFLOW -.->|API Call| Transformation_Engine
     AIRFLOW -.->|Fetch| SM
     
     GITHUB -.->|Deploy Infra| TF
-    TF -.->|Provision| Snowflake Data Cloud
-    TF -.->|Provision| AWS Cloud
+    TF -.->|Provision| Snowflake_Data_Cloud
+    TF -.->|Provision| AWS_Cloud
 ```
 
 ---
